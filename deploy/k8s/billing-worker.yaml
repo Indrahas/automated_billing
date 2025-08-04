@@ -1,0 +1,22 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-worker
+  namespace: billing
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: billing-worker }
+  template:
+    metadata:
+      labels: { app: billing-worker }
+    spec:
+      containers:
+        - name: billing-worker
+          image: billing-worker:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - { name: KAFKA_BROKERS, value: "kafka:9092" }
+            - { name: KAFKA_ORDERS_TOPIC, value: "orders" }
+            - { name: PG_DSN, value: "postgres://postgres:postgres@postgres:5432/billing?sslmode=disable" }

@@ -1,0 +1,22 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: outbox-publisher
+  namespace: billing
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: outbox-publisher }
+  template:
+    metadata:
+      labels: { app: outbox-publisher }
+    spec:
+      containers:
+        - name: outbox-publisher
+          image: outbox-publisher:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - { name: KAFKA_BROKERS, value: "kafka:9092" }
+            - { name: KAFKA_BILLING_EVENTS_TOPIC, value: "billing.events" }
+            - { name: PG_DSN, value: "postgres://postgres:postgres@postgres:5432/billing?sslmode=disable" }

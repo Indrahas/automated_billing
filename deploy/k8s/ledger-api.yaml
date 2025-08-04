@@ -1,0 +1,44 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-api
+  namespace: billing
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: ledger-api }
+  template:
+    metadata:
+      labels: { app: ledger-api }
+    spec:
+      containers:
+        - name: ledger-api
+          image: ledger-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+            - containerPort: 50051
+          env:
+            - { name: PG_HOST, value: postgres }
+            - { name: PG_PORT, value: "5432" }
+            - { name: PG_USER, value: postgres }
+            - { name: PG_PASSWORD, value: postgres }
+            - { name: PG_DATABASE, value: billing }
+            - { name: LEDGER_API_HTTP_PORT, value: "8080" }
+            - { name: LEDGER_API_GRPC_PORT, value: "50051" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledger-api
+  namespace: billing
+spec:
+  selector: { app: ledger-api }
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: grpc
+      port: 50051
+      targetPort: 50051

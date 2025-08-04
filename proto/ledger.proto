@@ -1,0 +1,25 @@
+
+syntax = "proto3";
+
+package ledger;
+
+message LedgerEntry {
+  string txn_id = 1;
+  string account_dr = 2;
+  string account_cr = 3;
+  string amount = 4;   // string to avoid float issues; parse as Decimal on server
+  string currency = 5; // e.g., "USD", "INR"
+}
+
+message CreateEntryRequest {
+  LedgerEntry entry = 1;
+}
+
+message CreateEntryResponse {
+  bool ok = 1;
+  string message = 2;
+}
+
+service LedgerService {
+  rpc CreateEntry (CreateEntryRequest) returns (CreateEntryResponse);
+}
