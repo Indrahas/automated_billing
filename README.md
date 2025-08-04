@@ -5,7 +5,6 @@
 
 This project demonstrates an **event-driven billing system** that consumes order events, computes invoices (with taxes, FX hooks), writes **double-entry ledger** records, and emits downstream events using the **outbox pattern** for exactly-once semantics. It includes a **Ledger API** (REST + gRPC) and nightly CSV exports to S3.
 
-> Designed to map directly to JD requirements around distributed systems, accounting automation, Kafka, Postgres, Kubernetes, gRPC, and AWS.
 
 ---
 
