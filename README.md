@@ -1,35 +1,8 @@
 
-# Event-Driven Billing Pipeline (Portfolio Project)
-
-**Stack:** Python, Go, Postgres, Kafka, Kubernetes, gRPC, AWS
+# Automated Billing
 
 This project demonstrates an **event-driven billing system** that consumes order events, computes invoices (with taxes, FX hooks), writes **double-entry ledger** records, and emits downstream events using the **outbox pattern** for exactly-once semantics. It includes a **Ledger API** (REST + gRPC) and nightly CSV exports to S3.
 
-
----
-
-## Architecture
-
-```
-[Order Producer] --Kafka:orders--> [Billing Worker (Go)]
-                                     |  (idempotency + saga)
-                                     v
-                                  Postgres (RDS/local)
-                                     |
-                               [Outbox Publisher (Go)] --Kafka:billing.events-->
-                                     |
-                             [Ledger API (Python)]  <--gRPC/REST-->  (exports to S3)
-```
-
-**Topics**
-- `orders` — inbound order events (external or local producer).
-- `billing.events` — published from outbox (invoice_created, payment_failed, etc.).
-
-**Core Tables**
-- `invoices` (idempotency_key, totals, status, version)
-- `invoice_lines`
-- `ledger_entries` (double-entry: debit/credit with invariants)
-- `outbox` (event payloads awaiting publication)
 
 ---
 
@@ -102,21 +75,5 @@ infra/terraform/            # AWS skeleton for MSK, RDS, S3
 tools/order-producer-py/    # Local producer to send order events
 ```
 
----
-
-## Observability & Testing
-- OpenTelemetry hooks in code skeleton (add your exporter of choice).
-- Prometheus metrics endpoints to add (TODO markers in code).
-- Chaos tests ideas: simulate Kafka outage, Postgres restart, duplicate orders.
-- Invariants:
-  - Exactly-once: `idempotency_key` unique in `invoices`.
-  - Ledger double-entry: sum(debits) == sum(credits) per txn.
-
----
-
-## Security Notes
-- Use IAM roles for service accounts on EKS.
-- Store secrets in Kubernetes Secrets / AWS Secrets Manager.
-- Principle of least privilege on RDS, MSK, S3.
 ```
 
